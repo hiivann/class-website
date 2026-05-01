@@ -26,6 +26,24 @@ export default async function(eleventyConfig) {
 		return collectionApi.getFilteredByGlob("content/F25/MAT4111A/proof_techniques/*.md");
 	});
 
+	eleventyConfig.addCollection("blog", function(collectionApi) {
+		return collectionApi.getAllSorted().filter(
+			function (item) { return item.data.type == "blog" }
+		);
+	});
+
+	eleventyConfig.addFilter("filterByClass", function(collection, courseNumber, term) {
+		return collection.filter(item => {
+			return item.data.courseNumber === courseNumber &&
+					item.data.term === term &&
+					item.data.type === "blog";
+		});
+	});
+
+	eleventyConfig.addFilter("isNonempty", function(collection) {
+		return collection.length > 0;
+	});
+
 	eleventyConfig.addPairedShortcode("md", (content) => {
     return mdLib.render(content);
   });
@@ -75,6 +93,13 @@ export default async function(eleventyConfig) {
 		const day     = d.toLocaleDateString("en-US", { timeZone: "UTC", day: "2-digit" });
 
     return `${weekday}, ${month}/${day}`;
+  });
+
+	eleventyConfig.addFilter("blogDate", function (dateObj) {
+    const d = new Date(dateObj);
+    const month   = d.toLocaleDateString("en-US", { timeZone: "UTC" });
+
+    return `${month}`;
   });
 
 	eleventyConfig.amendLibrary("md", mdLib => {
